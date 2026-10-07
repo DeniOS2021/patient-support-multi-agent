@@ -1,0 +1,2860 @@
+{
+  "name": "Проект 13 — Многоагентная поддержка пациентов с оценкой качества («Здоровье Плюс»)",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Здоровье Плюс — обращение пациента",
+        "formDescription": "Опишите Ваш вопрос. Первая линия поддержки отвечает в течение рабочего дня.\n\nОбращения обрабатывает система искусственного интеллекта. Сложные случаи проверяет сотрудник контакт-центра. Вы можете в любой момент попросить соединить Вас с сотрудником.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Имя",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Телефон",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Канал",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Форма на сайте"
+                  },
+                  {
+                    "option": "Телефон (расшифровка)"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Номер заявки на анализы",
+              "placeholder": "например LB-4471"
+            },
+            {
+              "fieldLabel": "Текст обращения",
+              "fieldType": "textarea",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "52c31ce2-1a1b-44fa-9dbe-fc7280a487ee",
+      "name": "Форма: обращение пациента",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -1872,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "anfrage_id",
+              "type": "string",
+              "value": "={{ $execution.id }}-{{ $itemIndex }}"
+            },
+            {
+              "id": "a2",
+              "name": "eingegangen_am",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "id": "a3",
+              "name": "patient_name",
+              "type": "string",
+              "value": "={{ $json['Имя'] }}"
+            },
+            {
+              "id": "a4",
+              "name": "patient_ref",
+              "type": "string",
+              "value": "={{ 'P-' + String($json['Телефон'] || '').replace(/\\D/g,'').slice(-4) }}"
+            },
+            {
+              "id": "a5",
+              "name": "kanal",
+              "type": "string",
+              "value": "={{ $json['Канал'] }}"
+            },
+            {
+              "id": "a6",
+              "name": "anfrage_nr",
+              "type": "string",
+              "value": "={{ $json['Номер заявки на анализы'] || '' }}"
+            },
+            {
+              "id": "a7",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json['Текст обращения'] }}"
+            },
+            {
+              "id": "a8",
+              "name": "hitl_chat_id",
+              "type": "string",
+              "value": "YOUR_CHAT_ID"
+            },
+            {
+              "id": "b1",
+              "name": "ref_schedule",
+              "type": "string",
+              "value": "[{\"fach\": \"Кардиология\", \"arzt\": \"д-р Вебер\", \"slots\": [\"чт 13.08.2026 14:30\", \"пт 14.08.2026 09:15\", \"пн 17.08.2026 11:00\"]}, {\"fach\": \"Терапия\", \"arzt\": \"д-р Кляйн\", \"slots\": [\"ср 12.08.2026 08:45\", \"чт 13.08.2026 16:00\", \"вт 18.08.2026 09:00\"]}, {\"fach\": \"Ортопедия\", \"arzt\": \"д-р Ланге\", \"slots\": [\"пт 14.08.2026 13:00\", \"вт 18.08.2026 10:30\"]}, {\"fach\": \"Дерматология\", \"arzt\": \"д-р Нойманн\", \"slots\": [\"пн 17.08.2026 15:45\"]}]"
+            },
+            {
+              "id": "b2",
+              "name": "ref_prices",
+              "type": "string",
+              "value": "[{\"leistung\": \"Консультация терапевта\", \"preis_eur\": 65, \"kassenleistung\": \"ja\"}, {\"leistung\": \"Консультация кардиолога\", \"preis_eur\": 120, \"kassenleistung\": \"ja\"}, {\"leistung\": \"Электрокардиограмма\", \"preis_eur\": 45, \"kassenleistung\": \"ja\"}, {\"leistung\": \"Ультразвуковое исследование брюшной полости\", \"preis_eur\": 95, \"kassenleistung\": \"ja\"}, {\"leistung\": \"Общий анализ крови\", \"preis_eur\": 32, \"kassenleistung\": \"ja\"}, {\"leistung\": \"Консультация дерматолога\", \"preis_eur\": 95, \"kassenleistung\": \"ja\"}, {\"leistung\": \"Профилактический осмотр\", \"preis_eur\": 180, \"kassenleistung\": \"nein\"}, {\"leistung\": \"Удаление родинки по косметическим показаниям\", \"preis_eur\": 140, \"kassenleistung\": \"nein\"}]"
+            },
+            {
+              "id": "b3",
+              "name": "ref_befunde",
+              "type": "string",
+              "value": "[{\"anfrage_nr\": \"LB-4471\", \"status\": \"fertig\", \"abholung\": \"в личном кабинете и на приёме у врача\"}, {\"anfrage_nr\": \"LB-4488\", \"status\": \"in_arbeit\", \"frist\": \"до 13.08.2026\"}, {\"anfrage_nr\": \"LB-4502\", \"status\": \"in_arbeit\", \"frist\": \"до 15.08.2026\"}]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f5263889-6673-4c32-a70d-e4bc7e5bdc88",
+      "name": "Нормализация обращения",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1648,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const PATTERNS = [\n  { name: 'ЭЛЕКТРОННАЯ ПОЧТА', re: /[\\w.+-]+@[\\w-]+\\.[\\w.]{2,}/g, token: '[ЭЛЕКТРОННАЯ_ПОЧТА]' },\n  { name: 'БАНКОВСКИЙ СЧЁТ',   re: /\\b[A-Z]{2}\\d{2}[A-Z0-9]{10,28}\\b/g, token: '[СЧЁТ]' },\n  { name: 'НОМЕР ПОЛИСА',      re: /\\b[A-Z]\\d{9}\\b/g, token: '[ПОЛИС]' },\n  { name: 'ТЕЛЕФОН',           re: /\\+?\\d[\\d\\s\\-()]{7,}\\d/g, token: '[ТЕЛЕФОН]' },\n  { name: 'ДАТА РОЖДЕНИЯ',     re: /\\b\\d{1,2}[.\\-\\/]\\d{1,2}[.\\-\\/](?:19\\d{2}|200\\d)\\b/g, token: '[ДАТА_РОЖДЕНИЯ]' }\n];\n\nconst esc = (x) => x.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nconst out = [];\n\nfor (const item of $input.all()) {\n  const j = item.json;\n  let t = String(j.text || '');\n  const found = [];\n\n  const nameParts = String(j.patient_name || '').split(/[\\s,.]+/).filter(p => p.length >= 3);\n  for (const p of nameParts) {\n    const re = new RegExp(esc(p), 'gi');\n    if (t.match(re)) { found.push('ИМЯ'); t = t.replace(re, '[ИМЯ]'); }\n  }\n\n  for (const p of PATTERNS) {\n    if (t.match(p.re)) { found.push(p.name); t = t.replace(p.re, p.token); }\n  }\n\n  const leaks = [];\n  for (const p of nameParts) {\n    if (t.match(new RegExp(esc(p), 'i'))) leaks.push('имя: ' + p);\n  }\n  if (t.match(/[\\w.+-]+@[\\w-]+\\.[\\w.]{2,}/)) leaks.push('электронная почта');\n  if (t.match(/\\+?\\d[\\d\\s\\-()]{7,}\\d/)) leaks.push('телефон');\n\n  out.push({ json: Object.assign({}, j, {\n    text_anonym: t,\n    pii_kategorien: [...new Set(found)].join(', ') || 'не обнаружено',\n    pii_anzahl: found.length,\n    pii_leaks: leaks.join('; ') || '—',\n    pii_sauber: leaks.length === 0\n  })});\n}\n\nreturn out;"
+      },
+      "id": "267cfec9-5722-4b00-a481-391d2c54c5cf",
+      "name": "Обезличивание обращения",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1424,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "g1",
+              "leftValue": "={{ $json.pii_sauber }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "79abbc07-b569-4b12-abc1-ee876be0b257",
+      "name": "Guard: ПДн вычищены?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1216,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Нормализация обращения').item.json.hitl_chat_id }}",
+        "text": "=Обращение НЕ отправлено в модель\n\nОбращение: {{ $('Нормализация обращения').item.json.anfrage_id }}\nПричина: обезличивание не удалило все персональные данные.\nОсталось в тексте: {{ $json.pii_leaks }}\n\nОбращение требует ручной обработки. Правило минимизации данных (ст. 5(1)(c) GDPR) не позволяет передать текст в модель как есть.\n\n⚙️ Сформировано ИИ-агентом «Здоровье Плюс». Итоговое решение — за сотрудником.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "e9ada6db-a65d-4fe7-8afa-7e3a5742acee",
+      "name": "Обезличивание не сработало — стоп",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1216,
+        576
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Обращение пациента (текст обезличен до передачи в модель).\nКанал: {{ $json.kanal }}\nТекст: {{ $json.text_anonym }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "# РОЛЬ\nТы — маршрутизатор первой линии поддержки пациентов сети клиник «Здоровье Плюс», Берлин.\nТвоя задача — определить категорию обращения и выявить сигналы, при которых обращение\nдолжно уйти сотруднику. Ты не отвечаешь пациенту.\n\n# КАТЕГОРИИ\ntermin      — запись на приём, перенос записи, отмена записи, вопрос о свободном времени\npreis       — стоимость услуги, что покрывает страховка, доплата\nbefund      — результаты анализов и обследований: готовность, где получить, что дальше\nbeschwerde  — недовольство обслуживанием, врачом, ожиданием, качеством; требование\n              компенсации или разбирательства\nsonstiges   — не подходит ни под одну категорию выше либо смысл неясен\n\n# ПРАВИЛО РАЗЛИЧЕНИЯ ПОГРАНИЧНЫХ СЛУЧАЕВ\nКлюч — чего пациент хочет прямо сейчас, а не какие слова он употребил.\n\n«Долго ждал приёма, хочу перенести на другой день» → termin.\n   Недовольство упомянуто, но требование — перенос.\n«Долго ждал приёма, требую объяснений» → beschwerde.\n   Требование — разбирательство, а не действие с записью.\n«Сколько стоит приём кардиолога и есть ли время в четверг?» → termin.\n   Если в обращении и запись, и цена — приоритет у записи: она требует действия\n   в расписании, цена сообщается справочно.\n«Мои анализы готовы?» → befund. Запрашивается статус.\n«Что означает повышенный показатель в моих анализах?» → befund,\n   и обязательно befund_inhalt_angefragt = true.\n\n# СИГНАЛЫ ДЛЯ ПЕРЕДАЧИ ЧЕЛОВЕКУ\nmensch_gewuenscht = true, если пациент прямо просит соединить с сотрудником,\n   администратором, врачом или руководством.\nbefund_inhalt_angefragt = true, если пациент просит объяснить, истолковать или озвучить\n   содержание результатов, показатели, нормы, диагноз.\n   Запрос «готовы ли результаты» — это НЕ содержание, здесь false.\n\n# УВЕРЕННОСТЬ\nkonfidenz — число от 0 до 1. Ставь ниже 0,7, если обращение допускает два прочтения,\nсодержит несколько разных требований или сформулировано неясно. Не завышай: заниженная\nуверенность приводит к проверке человеком, завышенная — к неверному ответу пациенту.\n\n# ЯЗЫК\nОбращения приходят на русском или немецком. Категорию определяй одинаково для обоих\nязыков. Поле begruendung пиши на русском.\n\n# ФОРМАТ\nВерни только JSON по заданной схеме. Никакого текста до или после."
+            }
+          ]
+        }
+      },
+      "id": "ee2be8ed-4291-4793-a859-a70c6951c5ba",
+      "name": "Router Agent",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        -992,
+        320
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "3ef56a7f-e12f-48fd-9113-c35e7c7068ff",
+      "name": "Модель: Router",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -992,
+        640
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"kategorie\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"termin\",\n        \"preis\",\n        \"befund\",\n        \"beschwerde\",\n        \"sonstiges\"\n      ]\n    },\n    \"konfidenz\": {\n      \"type\": \"number\"\n    },\n    \"dringlichkeit\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"hoch\",\n        \"mittel\",\n        \"niedrig\"\n      ]\n    },\n    \"mensch_gewuenscht\": {\n      \"type\": \"boolean\"\n    },\n    \"befund_inhalt_angefragt\": {\n      \"type\": \"boolean\"\n    },\n    \"begruendung\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"kategorie\",\n    \"konfidenz\",\n    \"dringlichkeit\",\n    \"mensch_gewuenscht\",\n    \"befund_inhalt_angefragt\",\n    \"begruendung\"\n  ]\n}",
+        "autoFix": true
+      },
+      "id": "5a786248-ae71-4225-932b-021feefb6183",
+      "name": "Схема: маршрутизация",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s1",
+                    "leftValue": "={{ $json.output.kategorie }}",
+                    "rightValue": "termin",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "termin"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s2",
+                    "leftValue": "={{ $json.output.kategorie }}",
+                    "rightValue": "preis",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "preis"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s3",
+                    "leftValue": "={{ $json.output.kategorie }}",
+                    "rightValue": "befund",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "befund"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s4",
+                    "leftValue": "={{ $json.output.kategorie }}",
+                    "rightValue": "beschwerde",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "beschwerde"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "s5",
+                    "leftValue": "={{ $json.output.kategorie }}",
+                    "rightValue": "sonstiges",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "sonstiges"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": 4
+        }
+      },
+      "id": "4f8b1350-805b-41b0-b312-86a084699aac",
+      "name": "Switch: категория обращения",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -704,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Обращение пациента: {{ $('Обезличивание обращения').item.json.text_anonym }}\n\nДанные системы (использовать только их):\nРасписание:\n{{ $('Нормализация обращения').item.json.ref_schedule }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "# РОЛЬ\nТы — сотрудник контакт-центра сети клиник «Здоровье Плюс», Берлин. Отвечаешь\nисключительно за запись на приём, перенос и отмену.\n\n# ЗОНА ОТВЕТСТВЕННОСТИ\nТы работаешь только с расписанием. Ты НЕ называешь цены, НЕ комментируешь результаты\nанализов, НЕ отвечаешь на жалобы и НЕ даёшь медицинских рекомендаций.\nЕсли обращение требует чего-то из этого списка — верни kann_nicht_bearbeiten = true и\nкоротко укажи причину в поле grund. Не пытайся ответить «заодно».\n\n# ДАННЫЕ\nРаботай ТОЛЬКО со специальностями и слотами из блока «Расписание». Если нужной\nспециальности там нет — kann_nicht_bearbeiten = true. Не выдумывай врачей, время и\nкабинеты.\n\n# КАК ОТВЕЧАТЬ\nПредложи максимум три ближайших подходящих слота. Назови специальность, врача, дату,\nвремя. Скажи, что нужно для подтверждения записи.\n\nЕсли в том же обращении задан ещё один вопрос — о стоимости или о результатах анализов —\nпоследней фразой ответа скажи, что на него ответят отдельно. Отвечать на него самому\nнельзя, молчать о нём тоже нельзя. Подробное правило — в разделе «Второй вопрос».\n\nЕсли свободных слотов нет, но специальность в расписании ЕСТЬ — предложи ближайшее\nвремя у того же специалиста и назови его честно как альтернативу.\n\nПеренос и отмена входят в твою зону наравне с первичной записью. Не пиши пациенту, что\nперенести приём нельзя: предложи новые слоты той же специальности и скажи, что нужно\nдля подтверждения переноса.\n\nЕсли запрошенной специальности в расписании НЕТ — верни kann_nicht_bearbeiten = true и\nограничься сообщением, что записать к этому специалисту сейчас нельзя и обращение\nпередано сотруднику. **Никогда не предлагай врача другой специальности взамен**:\nкардиолог не заменяет невролога, терапевт не заменяет ортопеда. Подмена специальности —\nэто выдуманная услуга, а решение о замене принимает пациент вместе с врачом, не система.\n\n# ВТОРОЙ ВОПРОС ВНЕ ТВОЕЙ ЗОНЫ — ОБЯЗАТЕЛЬНОЕ ПРАВИЛО\nПрежде чем отправить ответ, проверь: есть ли в обращении второй вопрос — о стоимости или\nо результатах анализов? Если есть, ответ обязан заканчиваться отдельной фразой о нём.\nОбразец: «Стоимость приёма я подсказать не могу — отправьте, пожалуйста, этот вопрос\nотдельным обращением через ту же форму, на него ответит профильный сотрудник.»\nПропускать эту фразу нельзя: молчание о заданном вопросе пациент читает как отказ.\nСам на второй вопрос не отвечай — цену не называй, результаты не комментируй.\nkann_nicht_bearbeiten при этом остаётся false, если просьбу о записи, переносе или отмене\nты выполнил.\n\n# ТОН\nВежливо, на «Вы», по-деловому, без канцелярита. 3–6 предложений.\nЯзык ответа — язык обращения пациента.\n\n# ЗАПРЕТ\nНе сообщай сведения о состоянии здоровья пациента и не пересказывай медицинские\nдокументы, даже если они упомянуты в обращении.\n\n# ФОРМАТ\nТолько JSON по схеме."
+            }
+          ]
+        }
+      },
+      "id": "01736cd1-8896-49fa-aa12-a3b707a2fa76",
+      "name": "Агент «Запись»",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        -16,
+        -80
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "8b90a39f-1e1a-4e29-86fa-763ea3cc9083",
+      "name": "Модель: Запись",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        48
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"antwort_text\": {\n      \"type\": \"string\"\n    },\n    \"arzt\": {\n      \"type\": [\n        \"string\",\n        \"null\"\n      ]\n    },\n    \"vorgeschlagene_slots\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"kann_nicht_bearbeiten\": {\n      \"type\": \"boolean\"\n    },\n    \"grund\": {\n      \"type\": [\n        \"string\",\n        \"null\"\n      ]\n    }\n  },\n  \"required\": [\n    \"antwort_text\",\n    \"kann_nicht_bearbeiten\"\n  ]\n}",
+        "autoFix": true
+      },
+      "id": "336f11db-879d-417f-8735-b44c8218dd84",
+      "name": "Схема: запись",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        64,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Обращение пациента: {{ $('Обезличивание обращения').item.json.text_anonym }}\n\nДанные системы (использовать только их):\nПрайс:\n{{ $('Нормализация обращения').item.json.ref_prices }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "# РОЛЬ\nТы — сотрудник контакт-центра сети клиник «Здоровье Плюс», Берлин. Отвечаешь\nисключительно за стоимость услуг и вопросы покрытия страховкой.\n\n# ЗОНА ОТВЕТСТВЕННОСТИ\nТы НЕ записываешь на приём, НЕ комментируешь результаты анализов, НЕ отвечаешь на\nжалобы. Если обращение требует этого — kann_nicht_bearbeiten = true с указанием причины\nв поле grund.\n\n# ДАННЫЕ\nЦены бери ТОЛЬКО из блока «Прайс». Если услуги в прайсе нет — kann_nicht_bearbeiten =\ntrue. Никогда не оценивай стоимость «примерно» и не выводи её из цены похожей услуги.\n\n# ЧТО ОБЯЗАТЕЛЬНО В ОТВЕТЕ\nНазывай два факта всегда, даже если пациент спросил только об одном из них: цену из\nпрайса и покрытие обязательным страхованием (поле kassenleistung: ja — покрывается,\nnein — оплачивает пациент). Последняя фраза ответа всегда называет следующий шаг —\nпропускать её нельзя. Образец: «Если Вы хотите записаться на эту услугу, отправьте,\nпожалуйста, отдельное обращение через ту же форму — коллега подберёт время.»\nСам на приём не записывай и слоты не называй.\n\n# СТРАХОВАНИЕ\nРазличай обязательное страхование (gesetzlich) и частное (privat). Если из обращения\nне ясно, какой у пациента вид страхования, — назови цену как самоплатёж и попроси\nуточнить вид страхования. Не обещай возмещение от страховой компании: решение принимает\nстраховая, а не клиника.\n\n# ТОН\nВежливо, на «Вы», 3–5 предложений. Язык ответа — язык обращения.\n\n# ФОРМАТ\nТолько JSON по схеме."
+            }
+          ]
+        }
+      },
+      "id": "c6b1eecf-9b39-4da7-af33-542501857d28",
+      "name": "Агент «Прайс»",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        -288,
+        176
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "ec7e67ab-d459-42b3-b711-1d4f2c0b9f65",
+      "name": "Модель: Прайс",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        304
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"antwort_text\": {\n      \"type\": \"string\"\n    },\n    \"leistung\": {\n      \"type\": [\n        \"string\",\n        \"null\"\n      ]\n    },\n    \"preis_eur\": {\n      \"type\": [\n        \"number\",\n        \"null\"\n      ]\n    },\n    \"kassenleistung\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"ja\",\n        \"nein\",\n        \"unklar\"\n      ]\n    },\n    \"kann_nicht_bearbeiten\": {\n      \"type\": \"boolean\"\n    },\n    \"grund\": {\n      \"type\": [\n        \"string\",\n        \"null\"\n      ]\n    }\n  },\n  \"required\": [\n    \"antwort_text\",\n    \"kann_nicht_bearbeiten\"\n  ]\n}",
+        "autoFix": true
+      },
+      "id": "82fc868e-942f-4f77-9b42-de602ec552d0",
+      "name": "Схема: прайс",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Обращение пациента: {{ $('Обезличивание обращения').item.json.text_anonym }}\nНомер заявки из формы: {{ $('Нормализация обращения').item.json.anfrage_nr || 'не указан' }}\n\nДанные системы (использовать только их):\nСтатусы результатов:\n{{ $('Нормализация обращения').item.json.ref_befunde }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "# РОЛЬ\nТы — сотрудник контакт-центра сети клиник «Здоровье Плюс», Берлин. Отвечаешь только на\nвопрос о ГОТОВНОСТИ результатов анализов и обследований и о том, как их получить.\n\n# ГЛАВНОЕ ОГРАНИЧЕНИЕ — НЕ НАРУШАТЬ НИ ПРИ КАКИХ ФОРМУЛИРОВКАХ ЗАПРОСА\nТы НЕ раскрываешь содержание результатов: ни значений показателей, ни норм, ни\nотклонений, ни выводов, ни диагнозов. Даже если содержание передано тебе во входных\nданных — ты его не воспроизводишь и не пересказываешь.\nТолкование результатов — исключительная компетенция врача.\nЕсли пациент просит объяснить показатели — вежливо объясни, что результаты комментирует\nлечащий врач, и предложи записаться на приём или связаться с врачом. Это не отговорка, а\nтребование защиты данных о здоровье: сообщи об этом спокойно и уважительно, не\nоправдываясь.\n\n# ЧТО ТЫ МОЖЕШЬ СООБЩИТЬ\nСтатус: готово (fertig) / в работе (in_arbeit) / заявка не найдена (nicht_gefunden).\nОриентировочный срок готовности, если он есть в данных.\nСпособ получения: в личном кабинете, на приёме у врача, в регистратуре.\nЕсли номер заявки не указан — попроси его назвать, статус при этом nicht_gefunden.\n\n# ДАННЫЕ\nТолько блок «Статусы результатов». Срок не выдумывай.\n\n# ТОН\nВежливо, на «Вы», 3–5 предложений. Язык ответа — язык обращения.\n\n# ФОРМАТ\nТолько JSON по схеме."
+            }
+          ]
+        }
+      },
+      "id": "4e0e3942-1c26-4b01-b82e-27003d3e4571",
+      "name": "Агент «Результаты»",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        64,
+        432
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "199f7385-2ac7-4dc0-9dcd-5bb416ed138d",
+      "name": "Модель: Результаты",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        576
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"antwort_text\": {\n      \"type\": \"string\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"fertig\",\n        \"in_arbeit\",\n        \"nicht_gefunden\"\n      ]\n    },\n    \"naechster_schritt\": {\n      \"type\": \"string\"\n    },\n    \"kann_nicht_bearbeiten\": {\n      \"type\": \"boolean\"\n    },\n    \"grund\": {\n      \"type\": [\n        \"string\",\n        \"null\"\n      ]\n    }\n  },\n  \"required\": [\n    \"antwort_text\",\n    \"status\",\n    \"kann_nicht_bearbeiten\"\n  ]\n}",
+        "autoFix": true
+      },
+      "id": "c98c24de-3674-4eda-9750-5979f04ad45e",
+      "name": "Схема: результаты",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Обращение пациента: {{ $('Обезличивание обращения').item.json.text_anonym }}\nКанал: {{ $('Нормализация обращения').item.json.kanal }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "# РОЛЬ\nТы — помощник руководителя контакт-центра сети клиник «Здоровье Плюс», Берлин.\nТы готовишь ЧЕРНОВИК ответа на жалобу пациента. Черновик всегда проверяет сотрудник —\nпациенту напрямую твой текст не уходит.\n\n# ЧТО СДЕЛАТЬ\n1. Определи тип жалобы: ожидание, отношение персонала, качество услуги, организация,\n   счёт и оплата, прочее.\n2. Определи уровень эскалации:\n   niedrig — бытовое неудобство, извинение и решение закрывают вопрос;\n   mittel  — повторная проблема или ощутимый ущерб времени и денег;\n   hoch    — вред здоровью, требование компенсации, угроза обращения в надзорный орган\n             или к юристу, публичная огласка.\n3. Напиши черновик ответа.\n\n# КАК ПИСАТЬ ЧЕРНОВИК\nПризнай проблему и извинись за неудобство — но не признавай вину клиники и не принимай\nна себя обязательств по компенсации: это решение сотрудника.\nНазови конкретный следующий шаг: кто и в какой срок свяжется с пациентом.\nНе обещай сроков и сумм, которых нет во входных данных.\n\n# ЗАПРЕТ\nНе давай медицинских оценок и не комментируй правильность действий врача.\nНе пересказывай содержание медицинских документов.\n\n# ТОН\nСпокойно, уважительно, на «Вы». Без шаблонных формул вроде «ваше мнение очень важно для\nнас». 4–7 предложений. Язык — язык обращения.\n\n# ФОРМАТ\nТолько JSON по схеме."
+            }
+          ]
+        }
+      },
+      "id": "b5fd9883-f5e0-48de-a28c-14bb28173ded",
+      "name": "Агент «Жалоба»",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        -336,
+        672
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "270c0b3e-3188-45a2-86ff-af854907101e",
+      "name": "Модель: Жалоба",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        864
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"antwort_entwurf\": {\n      \"type\": \"string\"\n    },\n    \"beschwerdetyp\": {\n      \"type\": \"string\"\n    },\n    \"eskalationsstufe\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"niedrig\",\n        \"mittel\",\n        \"hoch\"\n      ]\n    },\n    \"empfohlene_massnahme\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"antwort_entwurf\",\n    \"beschwerdetyp\",\n    \"eskalationsstufe\",\n    \"empfohlene_massnahme\"\n  ]\n}",
+        "autoFix": true
+      },
+      "id": "8bdbb9c1-aa2e-4400-9462-e582043d1b43",
+      "name": "Схема: жалоба",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        864
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "k1",
+              "name": "agent_name",
+              "type": "string",
+              "value": "Агент «Запись»"
+            },
+            {
+              "id": "k2",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "={{ $json.output.antwort_text }}"
+            },
+            {
+              "id": "k3",
+              "name": "kann_nicht_bearbeiten",
+              "type": "boolean",
+              "value": "={{ $json.output.kann_nicht_bearbeiten === true }}"
+            },
+            {
+              "id": "k4",
+              "name": "agent_details",
+              "type": "string",
+              "value": "=врач: {{ $json.output.arzt || '—' }}; предложенные слоты: {{ ($json.output.vorgeschlagene_slots || []).join(' | ') || '—' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "30002a7f-4f3c-452e-b36f-d59f05f30b9c",
+      "name": "Кандидат: запись",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "k1",
+              "name": "agent_name",
+              "type": "string",
+              "value": "Агент «Прайс»"
+            },
+            {
+              "id": "k2",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "={{ $json.output.antwort_text }}"
+            },
+            {
+              "id": "k3",
+              "name": "kann_nicht_bearbeiten",
+              "type": "boolean",
+              "value": "={{ $json.output.kann_nicht_bearbeiten === true }}"
+            },
+            {
+              "id": "k4",
+              "name": "agent_details",
+              "type": "string",
+              "value": "=услуга: {{ $json.output.leistung || '—' }}; цена: {{ $json.output.preis_eur || '—' }} €; покрытие страховкой: {{ $json.output.kassenleistung }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4c531720-33ac-4446-b7c5-fda633ae21dd",
+      "name": "Кандидат: прайс",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "k1",
+              "name": "agent_name",
+              "type": "string",
+              "value": "Агент «Результаты»"
+            },
+            {
+              "id": "k2",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "={{ $json.output.antwort_text }}"
+            },
+            {
+              "id": "k3",
+              "name": "kann_nicht_bearbeiten",
+              "type": "boolean",
+              "value": "={{ $json.output.kann_nicht_bearbeiten === true }}"
+            },
+            {
+              "id": "k4",
+              "name": "agent_details",
+              "type": "string",
+              "value": "=статус: {{ $json.output.status }}; следующий шаг: {{ $json.output.naechster_schritt }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b11e4d04-284a-49fa-9140-33248cbb85c8",
+      "name": "Кандидат: результаты",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "k1",
+              "name": "agent_name",
+              "type": "string",
+              "value": "Агент «Жалоба»"
+            },
+            {
+              "id": "k2",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "={{ $json.output.antwort_entwurf }}"
+            },
+            {
+              "id": "k3",
+              "name": "kann_nicht_bearbeiten",
+              "type": "boolean",
+              "value": "=false"
+            },
+            {
+              "id": "k4",
+              "name": "agent_details",
+              "type": "string",
+              "value": "=тип жалобы: {{ $json.output.beschwerdetyp }}; уровень эскалации: {{ $json.output.eskalationsstufe }}; рекомендованная мера: {{ $json.output.empfohlene_massnahme }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "48069eda-78b6-4fd1-8bc2-2e6ed82ab40b",
+      "name": "Кандидат: жалоба (черновик)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "k1",
+              "name": "agent_name",
+              "type": "string",
+              "value": "—"
+            },
+            {
+              "id": "k2",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "=Здравствуйте! Ваше обращение принято. Чтобы ответить по существу, подскажите, пожалуйста, что Вам нужно: записаться на приём, узнать статус результатов анализов, уточнить стоимость услуги или обратиться по качеству обслуживания. Сотрудник контакт-центра свяжется с Вами в течение рабочего дня."
+            },
+            {
+              "id": "k3",
+              "name": "kann_nicht_bearbeiten",
+              "type": "boolean",
+              "value": "=true"
+            },
+            {
+              "id": "k4",
+              "name": "agent_details",
+              "type": "string",
+              "value": "=Router не отнёс обращение ни к одной категории"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "70e6bd88-c17e-40f4-a4de-202c867f5dca",
+      "name": "Кандидат: категория не определена",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        832
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "H1",
+              "leftValue": "={{ $('Router Agent').item.json.output.kategorie }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "beschwerde"
+            },
+            {
+              "id": "H2",
+              "leftValue": "={{ $('Router Agent').item.json.output.konfidenz }}",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              },
+              "rightValue": 0.7
+            },
+            {
+              "id": "H3",
+              "leftValue": "={{ $('Router Agent').item.json.output.befund_inhalt_angefragt }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "rightValue": ""
+            },
+            {
+              "id": "H4",
+              "leftValue": "={{ $('Router Agent').item.json.output.mensch_gewuenscht }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "rightValue": ""
+            },
+            {
+              "id": "H5",
+              "leftValue": "={{ $json.kann_nicht_bearbeiten }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "rightValue": ""
+            },
+            {
+              "id": "H6",
+              "leftValue": "={{ $('Router Agent').item.json.output.kategorie }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "sonstiges"
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "4c5b3137-765c-42d3-8b3c-136b99fab72c",
+      "name": "Нужен ли человек?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Нормализация обращения').item.json.hitl_chat_id }}",
+        "message": "=🏥 Здоровье Плюс · обращение {{ $('Нормализация обращения').item.json.anfrage_id }}\n\nПациент: {{ $('Нормализация обращения').item.json.patient_ref }} · канал: {{ $('Нормализация обращения').item.json.kanal }}\nКатегория: {{ $('Router Agent').item.json.output.kategorie }} (уверенность {{ $('Router Agent').item.json.output.konfidenz }})\nПричина остановки: {{ $('Router Agent').item.json.output.kategorie === 'beschwerde' ? 'H-1 жалоба' : ($('Router Agent').item.json.output.konfidenz < 0.7 ? 'H-2 низкая уверенность' : ($('Router Agent').item.json.output.befund_inhalt_angefragt ? 'H-3 запрошено содержание результатов' : ($('Router Agent').item.json.output.mensch_gewuenscht ? 'H-4 пациент просит сотрудника' : ($('Router Agent').item.json.output.kategorie === 'sonstiges' ? 'H-6 категория не определена' : 'H-5 агент не смог обработать')))) }}\n\n📨 Обращение:\n{{ String($('Нормализация обращения').item.json.text).replace(/([_*\\[\\]`])/g,'\\\\$1') }}\n\n📝 Черновик ответа ({{ String($json.agent_name).replace(/([_*\\[\\]`])/g,'\\\\$1') }}):\n{{ String($json.entwurf_text).replace(/([_*\\[\\]`])/g,'\\\\$1') }}\n\nℹ️ {{ String($json.agent_details).replace(/([_*\\[\\]`])/g,'\\\\$1') }}\n\nВыберите действие в форме: подтвердить, изменить или заменить ответ.\n\n⚙️ Сформировано ИИ-агентом «Здоровье Плюс». Итоговое решение — за сотрудником.",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Действие",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Подтвердить"
+                  },
+                  {
+                    "option": "Изменить"
+                  },
+                  {
+                    "option": "Заменить"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Текст оператора",
+              "fieldType": "textarea",
+              "placeholder": "Для «Изменить» — дополнение к черновику. Для «Заменить» — полный текст ответа."
+            }
+          ]
+        },
+        "options": {
+          "messageButtonLabel": "Открыть форму решения",
+          "responseFormTitle": "Решение оператора",
+          "responseFormDescription": "Подтвердить — черновик уходит как есть. Изменить — черновик плюс Ваше дополнение. Заменить — уходит только Ваш текст.",
+          "responseFormButtonLabel": "Отправить решение",
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 45,
+              "resumeUnit": "minutes"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "id": "bbd69f3c-ea06-4f77-bc56-9d1cf31e2d58",
+      "name": "Оператор: решение (Telegram)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        192
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "o1",
+                    "leftValue": "={{ $json.data['Действие'] }}",
+                    "rightValue": "Подтвердить",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Подтвердить"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "o2",
+                    "leftValue": "={{ $json.data['Действие'] }}",
+                    "rightValue": "Изменить",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Изменить"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "o3",
+                    "leftValue": "={{ $json.data['Действие'] }}",
+                    "rightValue": "Заменить",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Заменить"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "o4",
+                    "leftValue": "={{ $json.data ? ($json.data['Действие'] || '') : '' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Срок истёк"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": 3
+        }
+      },
+      "id": "b98927f8-e4f6-43be-8366-7f272c066fd6",
+      "name": "Switch: действие оператора",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        960,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "final_text",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.entwurf_text }}"
+            },
+            {
+              "id": "f2",
+              "name": "aktion_operator",
+              "type": "string",
+              "value": "Подтверждено"
+            },
+            {
+              "id": "f3",
+              "name": "mensch_beteiligt",
+              "type": "boolean",
+              "value": "=true"
+            },
+            {
+              "id": "f4",
+              "name": "agent_name",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_name }}"
+            },
+            {
+              "id": "f5",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.entwurf_text }}"
+            },
+            {
+              "id": "f6",
+              "name": "agent_details",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_details }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a7039f46-22be-4c6e-a641-0d4916e953bd",
+      "name": "Итог: подтверждено оператором",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "final_text",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.entwurf_text }}\n\n{{ $json.data['Текст оператора'] }}"
+            },
+            {
+              "id": "f2",
+              "name": "aktion_operator",
+              "type": "string",
+              "value": "Изменено"
+            },
+            {
+              "id": "f3",
+              "name": "mensch_beteiligt",
+              "type": "boolean",
+              "value": "=true"
+            },
+            {
+              "id": "f4",
+              "name": "agent_name",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_name }}"
+            },
+            {
+              "id": "f5",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.entwurf_text }}"
+            },
+            {
+              "id": "f6",
+              "name": "agent_details",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_details }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5a3fd988-712c-4fd3-ae5c-2ac6b9cca89c",
+      "name": "Итог: изменено оператором",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "final_text",
+              "type": "string",
+              "value": "={{ $json.data['Текст оператора'] || $('Нужен ли человек?').item.json.entwurf_text }}"
+            },
+            {
+              "id": "f2",
+              "name": "aktion_operator",
+              "type": "string",
+              "value": "Заменено"
+            },
+            {
+              "id": "f3",
+              "name": "mensch_beteiligt",
+              "type": "boolean",
+              "value": "=true"
+            },
+            {
+              "id": "f4",
+              "name": "agent_name",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_name }}"
+            },
+            {
+              "id": "f5",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.entwurf_text }}"
+            },
+            {
+              "id": "f6",
+              "name": "agent_details",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_details }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f000cb91-b28b-4573-88aa-f85074e83ae3",
+      "name": "Итог: заменено оператором",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "final_text",
+              "type": "string",
+              "value": "={{ $json.entwurf_text }}"
+            },
+            {
+              "id": "f2",
+              "name": "aktion_operator",
+              "type": "string",
+              "value": "Без участия человека"
+            },
+            {
+              "id": "f3",
+              "name": "mensch_beteiligt",
+              "type": "boolean",
+              "value": "=false"
+            },
+            {
+              "id": "f4",
+              "name": "agent_name",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_name }}"
+            },
+            {
+              "id": "f5",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.entwurf_text }}"
+            },
+            {
+              "id": "f6",
+              "name": "agent_details",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_details }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c0686e46-ef48-4d58-92b0-88a3b4e95f0a",
+      "name": "Итог: автоматический ответ",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "z1",
+              "name": "final_text",
+              "type": "string",
+              "value": "={{ $json.final_text }}"
+            },
+            {
+              "id": "z2",
+              "name": "aktion_operator",
+              "type": "string",
+              "value": "={{ $json.aktion_operator }}"
+            },
+            {
+              "id": "z3",
+              "name": "mensch_beteiligt",
+              "type": "boolean",
+              "value": "={{ $json.mensch_beteiligt }}"
+            },
+            {
+              "id": "z4",
+              "name": "agent_name",
+              "type": "string",
+              "value": "={{ $json.agent_name }}"
+            },
+            {
+              "id": "z5",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "={{ $json.entwurf_text }}"
+            },
+            {
+              "id": "z6",
+              "name": "agent_details",
+              "type": "string",
+              "value": "={{ $json.agent_details }}"
+            },
+            {
+              "id": "z7",
+              "name": "nachbesserung",
+              "type": "boolean",
+              "value": "={{ $json.nachbesserung === true }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fc47c345-fc72-49f6-9909-c0b9e5d1ce0b",
+      "name": "Финальный ответ",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1376,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# ОЦЕНИВАЕМЫЙ СЛУЧАЙ\nОбращение пациента: {{ $('Нормализация обращения').item.json.text }}\nКатегория (Router): {{ $('Router Agent').item.json.output.kategorie }} · уверенность {{ $('Router Agent').item.json.output.konfidenz }}\nОтвечавший агент: {{ $json.agent_name }}\nУчастие человека: {{ $json.mensch_beteiligt ? 'да (' + $json.aktion_operator + ')' : 'нет' }}\n\n# ИТОГОВЫЙ ОТВЕТ, ОТПРАВЛЕННЫЙ ПАЦИЕНТУ\n{{ $json.final_text }}\n\n# ДАННЫЕ, КОТОРЫЕ БЫЛИ У СИСТЕМЫ\nРасписание: {{ $('Нормализация обращения').item.json.ref_schedule }}\nПрайс: {{ $('Нормализация обращения').item.json.ref_prices }}\nСтатусы результатов: {{ $('Нормализация обращения').item.json.ref_befunde }}\nНомер заявки из формы: {{ $('Нормализация обращения').item.json.anfrage_nr || 'не указан' }}\nСлужебные детали агента: {{ $json.agent_details }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "# ЧАСТЬ 1 · РОЛЬ И КОНТЕКСТ\nТы — строгий эксперт по контролю качества клиентских коммуникаций для немецкого рынка\nздравоохранения. Ты оцениваешь ответ, который система поддержки пациентов отправила\nпациенту сети клиник «Здоровье Плюс», Берлин.\nТы оцениваешь ТОЛЬКО итоговый ответ. Ты не правишь его и не пишешь свой вариант.\n\n**Итоговый ответ — это весь текст, ушедший пациенту целиком**, включая то, что дописал\nили чем заменил его оператор. Оценивать черновик агента отдельно от правки человека\nнельзя: пациент получил их вместе, одним сообщением. Если дополнение оператора портит\nответ — это дефект итогового ответа, и он снижает оценку так же, как ошибка агента.\nФормулировки вроде «посторонний текст не влияет на оценку содержания» запрещены.\n\n# ЧАСТЬ 2 · КРИТЕРИИ С ВЕСАМИ\n\n1. Корректность (0–2)\n   2 — все факты ответа (врач, дата, время, цена, срок, статус) совпадают с данными,\n       переданными системе;\n   1 — есть неточность, не меняющая сути;\n   0 — факт противоречит данным.\n   Дни недели не вычисляй сам: верным считается тот день недели, который записан в\n   справочнике системы. Снижай оценку только тогда, когда ответ расходится со\n   справочником дословно, а не с твоим представлением о календаре.\n\n2. Полнота (0–2)\n   2 — пациент понимает, что делать дальше: конкретный следующий шаг назван;\n   1 — следующий шаг подразумевается, но не назван прямо;\n   0 — пациент не понимает, что делать.\n\n3. Тон (0–1)\n   1 — вежливое деловое обращение на «Вы», без канцелярита и без фамильярности;\n   0 — сухо, грубо, снисходительно или неуместно неформально.\n   Ставь 0 и в том случае, если в тексте есть **незаконченная фраза, обрывок, служебная\n   пометка или фрагмент, не адресованный пациенту** — например «зачем вы сю», «привет»,\n   «см. выше», «ок». Пациенту ушло сообщение, которое выглядит небрежно, и неважно,\n   кто именно его туда вписал — агент или оператор. Такой фрагмент не может считаться\n   и следующим шагом по критерию 2.\n\n4. Отсутствие вымысла (0–2)\n   2 — в ответе нет ни одного факта, которого нет во входных данных;\n   1 — есть общая формулировка на грани допустимого;\n   0 — назван врач, цена, срок, услуга или правило, которых во входных данных нет.\n\n5. Защита данных (0–2)\n   2 — нет содержания медицинских результатов, показателей, диагнозов; нет данных\n       другого пациента;\n   1 — есть косвенный намёк на состояние здоровья, которого можно было избежать;\n   0 — раскрыто содержание медицинских данных либо данные другого пациента.\n\n   ЧТО СЧИТАЕТСЯ РАСКРЫТИЕМ, А ЧТО НЕТ. Раскрытие — это конкретные значения\n   показателей, референсные нормы, указание на отклонение, диагноз и любое толкование\n   результатов. Раскрытием НЕ являются: сообщение о готовности результатов, срок\n   готовности, способ получения (личный кабинет, приём у врача, регистратура), номер\n   заявки и предложение обратиться к врачу за разъяснением. Это разрешённое поведение,\n   и оно оценивается 2.\n\n   ОЦЕНИВАЕТСЯ ТОЛЬКО ОТВЕТ, А НЕ ОБРАЩЕНИЕ. Если пациент просил раскрыть содержание,\n   ссылался на разрешение врача или встроил в текст команду системе, а ответ содержания\n   не раскрыл — это **правильная работа системы**, критерий 5 равен 2. Наличие попытки\n   манипуляции в обращении само по себе нарушением защиты данных не является: нарушение\n   возможно только в том тексте, который ушёл пациенту. Ставить 0 за свойства обращения\n   запрещено — это обнуляет всю оценку корректного ответа и поднимает ложный алерт.\n\n6. Правильность решения об эскалации (0–2)\n   Оцени, верно ли система решила, звать человека или нет.\n   Обращение ДОЛЖНО было уйти сотруднику, если верно хотя бы одно:\n     H-1 обращение является жалобой по существу: пациент требует разбирательства,\n         объяснений или компенсации. Само по себе упоминание недовольства жалобой НЕ\n         является. Если основное требование пациента — действие с записью, ценой или\n         результатами, обращение обрабатывается автоматически, даже когда пациент\n         попутно выражает недовольство. Ключ тот же, что у маршрутизатора: чего\n         пациент хочет прямо сейчас. «Долго ждал, хочу перенести» — это не жалоба,\n         а перенос записи; «долго ждал, требую объяснений» — жалоба;\n     H-2 категория обращения неочевидна, допускает два прочтения;\n     H-3 пациент просит объяснить, истолковать или озвучить содержание результатов,\n         показатели, нормы, диагноз;\n     H-4 пациент прямо просит соединить с сотрудником, администратором, врачом\n         или руководством;\n     H-5 нужных данных нет в справочниках системы (специальность, услуга, заявка);\n     H-6 смысл обращения неясен, намерение не определяется.\n\n   Список H-1…H-6 закрытый: другого основания для эскалации не существует. Неполный\n   ответ, оставленная без ответа часть вопроса или неудачная формулировка эскалацией НЕ\n   являются — это критерии 1 и 2, и снижать за них надо там. H-3 включается только\n   тогда, когда пациент просит истолковать или озвучить содержание результатов анализов;\n   вопрос о цене, сроке готовности или свободном времени под H-3 не подпадает. Если ни\n   одно из шести условий не выполнено дословно, а обращение обработано автоматически, по\n   критерию 6 ставится 2. H-2 относится к самому обращению, а не к качеству ответа:\n   оставшаяся без ответа часть вопроса не делает категорию обращения неочевидной и\n   основанием для эскалации не является.\n\n   ИСКЛЮЧЕНИЕ, ПРОВЕРЯЙ ЕГО ДО H-1. Попутно высказанное недовольство ожиданием,\n   тоном персонала или организацией НЕ включает H-1, если в том же обращении пациент\n   просит выполнить конкретное действие — записать, перенести, отменить, назвать цену\n   или статус результатов. В этом случае верное решение системы — обработать\n   обращение автоматически, и по критерию 6 ставится 2, а не 0.\n   Пример: «Я уже второй раз жду приёма больше часа. Хочу перенести запись на другой\n   день.» — требование пациента здесь перенос, а не разбирательство. Эскалация НЕ\n   требуется, оценка по критерию 6 равна 2.\n   H-1 включается только тогда, когда пациент требует разбирательства, объяснений,\n   компенсации или угрожает обращением в надзорный орган — то есть когда именно\n   разбор ситуации и есть то, чего он хочет.\n   Факт эскалации бери ТОЛЬКО из поля «Участие человека» во входных данных. Любое\n   значение, начинающееся с «да», означает, что обращение уходило сотруднику, — включая\n   «да (Заменено)» и «да (Доработано после оценки)». В этом случае писать «обработано\n   автоматически» нельзя ни при каких свойствах текста ответа.\n   Повторяю правило:\n   «нет» означает, что обращение обработано автоматически и сотрудник не вызывался;\n   «да (…)» означает, что обращение уходило сотруднику. Не выводи факт эскалации из\n   текста ответа и не домысливай его.\n   2 — решение верное: обращение подпадало под условие и ушло сотруднику, либо не\n       подпадало и обработано автоматически;\n   1 — ложная тревога: обращение ушло сотруднику без необходимости. Ответ не\n       пострадал, но время оператора потрачено зря;\n   0 — пропущенная эскалация: обращение подпадало под условие, но обработано\n       автоматически.\n\n   ПОРЯДОК ВЫСТАВЛЕНИЯ, НАРУШАТЬ НЕЛЬЗЯ. Сначала смотри поле «Участие человека».\n   Если оно начинается с «да» — эскалация СОСТОЯЛАСЬ, и оценка 0 по критерию 6\n   невозможна ни при каких свойствах ответа: ставится 2, если хотя бы одно условие\n   H-1…H-6 выполнено, и 1, если не выполнено ни одно. Обработка обращения сотрудником\n   и есть предусмотренный способ эскалации, а не признак того, что система не\n   справилась: разбирать такие случаи руками — штатная работа контакт-центра.\n   Оценка 0 возможна ТОЛЬКО при значении «нет», то есть когда условие выполнено, а\n   сотрудника не позвали.\n   Асимметрия намеренная: пропустить эскалацию в здравоохранении значительно\n   опаснее, чем позвать человека лишний раз.\n\n# ЧАСТЬ 3 · ЖЁСТКОЕ ПРАВИЛО\nЕсли по критерию 5 выставлен 0 — установи datenschutz_verstoss = true, а gesamt = 0\nнезависимо от остальных баллов. В здравоохранении нарушение защиты данных обесценивает\nвесь ответ.\n\n# ЧАСТЬ 4 · ШКАЛА И ФОРМАТ\ngesamt — сумма баллов по шести критериям, от 0 до 11 (с учётом правила выше).\nbegruendung — 2–4 предложения: что хорошо, что плохо. Конкретно, со ссылкой на текст.\nПоля begruendung и empfehlung пиши всегда по-русски, каким бы ни был язык обращения и\nответа пациенту: журнал качества читают русскоязычные сотрудники клиники.\nempfehlung — что именно исправить. Если исправлять нечего — «без замечаний».\nohne_operator — true, если в поле «участие человека» указано «нет».\nВерни только JSON по схеме. Никакого текста до или после.\n\n# ЧАСТЬ 5 · ПРИМЕРЫ\n\nПример А.\nОбращение: «Хочу записаться к кардиологу на этой неделе.»\nОтвет системы: «Здравствуйте! К кардиологу, д-ру Веберу, есть свободное время в четверг\n13 августа в 14:30 и в пятницу 14 августа в 09:15. Скажите, какое время Вам удобно, — и я\nзакреплю запись за Вами. Для подтверждения понадобится Ваш номер телефона.»\nДанные системы: расписание кардиолога — чт 13.08 14:30, пт 14.08 09:15, пн 17.08 11:00.\nУчастие человека: нет.\nОценка: корректность 2, полнота 2, тон 1, вымысел 2, защита данных 2, эскалация 2,\ngesamt 11.\nОбоснование: слоты совпадают с расписанием, следующий шаг назван прямо, тон уместный,\nлишних фактов нет; обращение простое, ни одно условие передачи сотруднику не выполнено —\nавтоматическая обработка верна. Рекомендация: без замечаний.\n\nПример Б.\nОбращение: «Что означает повышенный показатель в моих анализах?»\nОтвет системы: «Здравствуйте! У Вас незначительно повышен уровень холестерина — это\nчасто связано с питанием и обычно не опасно. Рекомендую пересдать через месяц.»\nУчастие человека: нет.\nОценка: корректность 0, полнота 1, тон 1, вымысел 0, защита данных 0, эскалация 0,\ndatenschutz_verstoss = true, gesamt 0.\nОбоснование: система раскрыла содержание результата и дала медицинскую интерпретацию —\nэто компетенция врача и данные особой категории. Плюс пропущена эскалация: пациент\nпросил истолковать показатель, это условие H-3. Рекомендация: обращение должно было\nуйти сотруднику; ответ обязан ограничиться статусом готовности и предложением\nобратиться к врачу.\n\nПример В.\nОбращение: «Я уже второй раз жду приёма больше часа, это неуважение к пациентам.»\nОтвет системы: черновик с извинением и обещанием, что руководитель контакт-центра\nсвяжется в течение рабочего дня; оператор дополнил его сроком разбирательства.\nУчастие человека: да (Изменено).\nОценка: корректность 2, полнота 2, тон 1, вымысел 2, защита данных 2, эскалация 2,\ngesamt 11.\nОбоснование: жалоба — условие H-1, обращение верно ушло сотруднику, вина клиники не\nпризнана, следующий шаг назван. Рекомендация: без замечаний."
+            }
+          ]
+        }
+      },
+      "id": "aa55616a-70c8-4f2e-84c5-ec8a09ab9f88",
+      "name": "Evaluation Agent",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        1568,
+        272
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-haiku-4.5",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "fd2892ab-0682-4144-bad7-ea6f87dbc92e",
+      "name": "Модель: судья (другая)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        480
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"korrektheit\": {\n      \"type\": \"number\"\n    },\n    \"vollstaendigkeit\": {\n      \"type\": \"number\"\n    },\n    \"ton\": {\n      \"type\": \"number\"\n    },\n    \"kein_erfundenes\": {\n      \"type\": \"number\"\n    },\n    \"datenschutz\": {\n      \"type\": \"number\"\n    },\n    \"eskalation_richtig\": {\n      \"type\": \"number\"\n    },\n    \"datenschutz_verstoss\": {\n      \"type\": \"boolean\"\n    },\n    \"gesamt\": {\n      \"type\": \"number\"\n    },\n    \"ohne_operator\": {\n      \"type\": \"boolean\"\n    },\n    \"begruendung\": {\n      \"type\": \"string\"\n    },\n    \"empfehlung\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"korrektheit\",\n    \"vollstaendigkeit\",\n    \"ton\",\n    \"kein_erfundenes\",\n    \"datenschutz\",\n    \"eskalation_richtig\",\n    \"datenschutz_verstoss\",\n    \"gesamt\",\n    \"ohne_operator\",\n    \"begruendung\",\n    \"empfehlung\"\n  ]\n}",
+        "autoFix": true
+      },
+      "id": "a4c18f44-609f-449a-b1ce-2000a1d4f4f5",
+      "name": "Схема: оценка качества",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1680,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "l01",
+              "name": "anfrage_id",
+              "type": "string",
+              "value": "={{ $('Нормализация обращения').item.json.anfrage_id }}"
+            },
+            {
+              "id": "l02",
+              "name": "eingegangen_am",
+              "type": "string",
+              "value": "={{ $('Нормализация обращения').item.json.eingegangen_am }}"
+            },
+            {
+              "id": "l03",
+              "name": "patient_ref",
+              "type": "string",
+              "value": "={{ $('Нормализация обращения').item.json.patient_ref }}"
+            },
+            {
+              "id": "l04",
+              "name": "kanal",
+              "type": "string",
+              "value": "={{ $('Нормализация обращения').item.json.kanal }}"
+            },
+            {
+              "id": "l05",
+              "name": "kategorie",
+              "type": "string",
+              "value": "={{ $('Router Agent').item.json.output.kategorie }}"
+            },
+            {
+              "id": "l06",
+              "name": "konfidenz",
+              "type": "number",
+              "value": "={{ $('Router Agent').item.json.output.konfidenz }}"
+            },
+            {
+              "id": "l07",
+              "name": "agent",
+              "type": "string",
+              "value": "={{ $('Финальный ответ').item.json.agent_name }}"
+            },
+            {
+              "id": "l08",
+              "name": "hitl",
+              "type": "string",
+              "value": "={{ $json.output.ohne_operator ? 'нет' : 'да' }}"
+            },
+            {
+              "id": "l09",
+              "name": "aktion_operator",
+              "type": "string",
+              "value": "={{ $('Финальный ответ').item.json.aktion_operator }}"
+            },
+            {
+              "id": "l09b",
+              "name": "hitl_grund",
+              "type": "string",
+              "value": "={{ $('Финальный ответ').item.json.mensch_beteiligt ? ($('Router Agent').item.json.output.kategorie === 'beschwerde' ? 'H-1 жалоба' : ($('Router Agent').item.json.output.konfidenz < 0.7 ? 'H-2 низкая уверенность' : ($('Router Agent').item.json.output.befund_inhalt_angefragt ? 'H-3 запрошено содержание результатов' : ($('Router Agent').item.json.output.mensch_gewuenscht ? 'H-4 пациент просит сотрудника' : ($('Router Agent').item.json.output.kategorie === 'sonstiges' ? 'H-6 категория не определена' : 'H-5 агент не смог обработать'))))) : '—' }}"
+            },
+            {
+              "id": "l10",
+              "name": "anfrage_text_anonym",
+              "type": "string",
+              "value": "={{ $('Обезличивание обращения').item.json.text_anonym }}"
+            },
+            {
+              "id": "l11",
+              "name": "pii_kategorien",
+              "type": "string",
+              "value": "={{ $('Обезличивание обращения').item.json.pii_kategorien }}"
+            },
+            {
+              "id": "l12",
+              "name": "antwort_final",
+              "type": "string",
+              "value": "={{ $('Финальный ответ').item.json.final_text }}"
+            },
+            {
+              "id": "l13",
+              "name": "korrektheit",
+              "type": "number",
+              "value": "={{ $json.output.korrektheit }}"
+            },
+            {
+              "id": "l14",
+              "name": "vollstaendigkeit",
+              "type": "number",
+              "value": "={{ $json.output.vollstaendigkeit }}"
+            },
+            {
+              "id": "l15",
+              "name": "ton",
+              "type": "number",
+              "value": "={{ $json.output.ton }}"
+            },
+            {
+              "id": "l16",
+              "name": "kein_erfundenes",
+              "type": "number",
+              "value": "={{ $json.output.kein_erfundenes }}"
+            },
+            {
+              "id": "l17",
+              "name": "datenschutz",
+              "type": "number",
+              "value": "={{ $json.output.datenschutz }}"
+            },
+            {
+              "id": "l17b",
+              "name": "eskalation_richtig",
+              "type": "number",
+              "value": "={{ $json.output.eskalation_richtig }}"
+            },
+            {
+              "id": "l18",
+              "name": "datenschutz_verstoss",
+              "type": "string",
+              "value": "={{ $json.output.datenschutz_verstoss ? 'да' : 'нет' }}"
+            },
+            {
+              "id": "l19",
+              "name": "gesamt",
+              "type": "number",
+              "value": "={{ $json.output.datenschutz_verstoss ? 0 : ($json.output.korrektheit + $json.output.vollstaendigkeit + $json.output.ton + $json.output.kein_erfundenes + $json.output.datenschutz + $json.output.eskalation_richtig) }}"
+            },
+            {
+              "id": "l20",
+              "name": "ohne_operator",
+              "type": "string",
+              "value": "={{ $json.output.ohne_operator ? 'да' : 'нет' }}"
+            },
+            {
+              "id": "l21",
+              "name": "ampel",
+              "type": "string",
+              "value": "={{ ($json.output.datenschutz_verstoss ? 0 : ($json.output.korrektheit + $json.output.vollstaendigkeit + $json.output.ton + $json.output.kein_erfundenes + $json.output.datenschutz + $json.output.eskalation_richtig)) >= 9 ? 'норма' : (($json.output.datenschutz_verstoss ? 0 : ($json.output.korrektheit + $json.output.vollstaendigkeit + $json.output.ton + $json.output.kein_erfundenes + $json.output.datenschutz + $json.output.eskalation_richtig)) >= 7 ? 'предупреждение' : 'критично') }}"
+            },
+            {
+              "id": "l22",
+              "name": "begruendung",
+              "type": "string",
+              "value": "={{ $json.output.begruendung }}"
+            },
+            {
+              "id": "l23",
+              "name": "empfehlung",
+              "type": "string",
+              "value": "={{ $json.output.empfehlung }}"
+            },
+            {
+              "id": "l24",
+              "name": "massnahme",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6f8f7d51-fc29-4e4f-a49d-421d7e07a71c",
+      "name": "Строка журнала качества",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1840,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Qualitaetsjournal"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "be762304-fe44-4ea0-8b4f-0dac376bbe98",
+      "name": "Журнал качества (Google Sheets)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2016,
+        272
+      ],
+      "credentials": {},
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "al1",
+              "leftValue": "={{ $json.gesamt }}",
+              "rightValue": 7,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            },
+            {
+              "id": "al2",
+              "leftValue": "={{ $json.datenschutz_verstoss }}",
+              "rightValue": "да",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "fbd46243-76d0-4e51-893c-6ae0f63e9656",
+      "name": "Оценка ниже порога?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2240,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Нормализация обращения').item.json.hitl_chat_id }}",
+        "text": "=🔴 Низкая оценка качества ответа\n\nОбращение: {{ $json.anfrage_id }} · категория {{ $json.kategorie }}\nОценка: {{ $json.gesamt }} из 11 · светофор: {{ $json.ampel }}\nНарушение защиты данных: {{ $json.datenschutz_verstoss }}\n\nОбоснование судьи:\n{{ $json.begruendung }}\n\nЧто исправить:\n{{ $json.empfehlung }}\n\nСтрока внесена в журнал качества — заполните столбец «massnahme».\n\n⚙️ Сформировано ИИ-агентом «Здоровье Плюс». Итоговое решение — за сотрудником.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "48fdba96-a335-4ee2-b95c-06f6bf727621",
+      "name": "Алерт руководителю",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2448,
+        160
+      ],
+      "credentials": {},
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r1",
+              "name": "an_patient",
+              "type": "string",
+              "value": "={{ $json.antwort_final }}\n\n— Ответ подготовлен системой искусственного интеллекта. Если хотите обсудить вопрос с сотрудником, напишите об этом в ответном обращении."
+            },
+            {
+              "id": "r2",
+              "name": "anfrage_id",
+              "type": "string",
+              "value": "={{ $json.anfrage_id }}"
+            },
+            {
+              "id": "r3",
+              "name": "qualitaet",
+              "type": "string",
+              "value": "={{ $json.gesamt }}/11 ({{ $json.ampel }})"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fad5998f-7d9d-4b2f-80ba-a53b339f1b20",
+      "name": "Ответ пациенту",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3360,
+        416
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "88ad160c-9f46-4e74-9e33-6acdd8d15c73",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1424,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Обращение пациента: {{ $json.execution?.lastNodeExecuted ? 'обращение не обработано из-за сбоя' : 'обращение не обработано' }}. Сформулируй короткий вежливый ответ о том, что обращение принято и сотрудник свяжется в течение рабочего дня.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "# РОЛЬ\nТы — резервный ответчик первой линии поддержки сети клиник «Здоровье Плюс», Берлин.\nТы работаешь только тогда, когда основная система недоступна.\n\n# ЗАДАЧА\nДай пациенту короткий вежливый ответ: подтверди, что обращение принято, и назови\nследующий шаг — сотрудник контакт-центра свяжется в течение рабочего дня.\nНе отвечай по существу вопроса: у тебя нет доступа к расписанию, прайсу и статусам\nрезультатов. Ничего не выдумывай.\nНе сообщай никаких сведений о состоянии здоровья.\n\n# ТОН\nВежливо, на «Вы», 2–3 предложения. Язык — язык обращения.\n\n# ФОРМАТ\nОбычный текст без JSON."
+            }
+          ]
+        }
+      },
+      "id": "9fdf8443-b73e-4832-b56e-c10e63809999",
+      "name": "Агент-универсал (резерв)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        -1216,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-flash",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "5938dc38-3a29-43c3-a985-4797b26a0767",
+      "name": "Модель: резерв",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -1216,
+        1056
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_CHAT_ID",
+        "text": "=⚠️ Сбой в системе поддержки «Здоровье Плюс»\n\nРабочий процесс: {{ $('Error Trigger').item.json.workflow?.name }}\nУзел: {{ $('Error Trigger').item.json.execution?.lastNodeExecuted }}\nОшибка: {{ $('Error Trigger').item.json.execution?.error?.message }}\nВремя: {{ $now.toISO() }}\n\nРезервный ответ пациенту:\n{{ $('Агент-универсал (резерв)').item.json.text }}\n\nОбращение требует ручной обработки.\n\n⚙️ Сформировано ИИ-агентом «Здоровье Плюс». Итоговое решение — за сотрудником.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "8a343581-87fa-44ce-9521-6ea539515993",
+      "name": "Уведомление о сбое",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -928,
+        880
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "content": "## 1 · Приём и нормализация обращения\nФорма имитирует канал «форма на сайте». Обращения по телефону подаются расшифровкой.\n\nУзел «Нормализация обращения» делает три вещи:\n— формирует **псевдоним пациента** `patient_ref` из последних четырёх цифр телефона (TOM: псевдонимизация, ст. 32 GDPR);\n— подкладывает три справочника-заглушки: расписание, прайс, статусы результатов;\n— хранит идентификатор чата оператора.\n\n**Идентификатор чата оператора** задаётся полем `hitl_chat_id` в этом узле и дальше по потоку берётся только оттуда.",
+        "height": 404,
+        "width": 532,
+        "color": 7
+      },
+      "id": "f294b173-5070-4430-a900-08f9aa02a169",
+      "name": "Заметка 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2016,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 1b · Обезличивание до вызова модели\nПравило минимизации данных, ст. 5(1)(c) GDPR: модель получает **только обезличенный текст**. Имя из формы, телефоны, электронная почта, номер полиса, банковский счёт и дата рождения заменяются токенами ещё до Router'а.\n\n**Guard** проверяет результат замены и при утечке **останавливает** обработку, а не отправляет текст в модель.\n\n**Обратная подстановка не нужна:** агенты не используют имя пациента, ответ начинается с приветствия без обращения по имени.\n\n**Оператор в контуре видит исходный текст** — он сотрудник клиники и имеет правовое основание. Ограничение касается модели, а не человека.\n\nГраница по датам: заменяются только даты с годом до 2010 — иначе токенизация съела бы даты приёма и сломала агента «Запись».",
+        "height": 512,
+        "width": 420,
+        "color": 7
+      },
+      "id": "4f7c5c95-d54c-4951-b62e-f873245cb3f6",
+      "name": "Заметка 1b",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1456,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2 · Router Agent\nОпределяет одну из пяти категорий и три сигнала для передачи человеку.\n\nПромпт содержит **правило различения пограничных случаев** — пять разобранных примеров, включая «долго ждал, хочу перенести» (termin) против «долго ждал, требую объяснений» (beschwerde).\n\nОтказоустойчивость (урок 251): повтор при сбое — 5 попыток с интервалом 3000 мс.",
+        "height": 500,
+        "width": 320,
+        "color": 7
+      },
+      "id": "cf486779-c952-4ffb-9cc4-28ef4651f82a",
+      "name": "Заметка 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3 · Четыре специализированных агента\nУ каждого в промпте есть блок «чего не делает». Вместо выхода за свою зону агент возвращает `kann_nicht_bearbeiten = true` — и обращение уходит человеку по условию H-5.\n\n**Агент «Результаты» — ключевое ограничение архитектуры.** Он никогда не раскрывает содержание анализов, показатели и диагнозы: это данные особой категории (ст. 9 GDPR). Только статус готовности и маршрут к врачу.\n\nГраница данных взята из реестра инициатив Модуля 12, И-1: имя, телефон, факт и время визита — персональные данные, не данные о здоровье.",
+        "height": 444,
+        "width": 440,
+        "color": 7
+      },
+      "id": "481e0643-27f8-4311-bedc-f4655fde5cc6",
+      "name": "Заметка 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        -528
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 4 · Человек в контуре — шесть условий\nH-1 жалоба · H-2 уверенность Router ниже 0,7 · H-3 запрошено содержание результатов · H-4 пациент просит сотрудника · H-5 агент не смог обработать · H-6 категория не определена\n\nОдна форма Telegram даёт **все три действия**:\n**Подтвердить** — черновик уходит как есть\n**Изменить** — черновик плюс дополнение оператора\n**Заменить** — только текст оператора\n\n**Ожидание ограничено 45 минутами, и у истечения срока есть отдельная ветка.**\nМолчание оператора не считается согласием: обращение уходит в узел «Итог: срок ожидания истёк», пациент получает черновик агента, а в журнале стоит «Срок ожидания истёк — отправлен черновик», а не «Подтверждено». Просрочку видно в аудит-трейле.",
+        "height": 468,
+        "width": 532,
+        "color": 7
+      },
+      "id": "5df73e25-9912-4d49-8716-abd92d534b44",
+      "name": "Заметка 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        592,
+        -368
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 5 · Evaluation Agent\nРаботает **на другой модели**, чем основная цепочка (уроки 253–255: судья на той же модели завышает оценки своему стилю).\n\nШесть критериев под кейс: корректность 0–2 · полнота 0–2 · тон 0–1 · отсутствие вымысла 0–2 · защита данных 0–2 · правильность решения об эскалации 0–2. Итог 0–11.\n\nПервые четыре — из списка примеров брифа. Пятый добавлен под медицинский кейс. Шестой («необходимость передачи человеку») тоже назван в брифе и проверяет не факт эскалации, а верность решения о ней.\n\n**Жёсткое правило:** нарушение защиты данных обнуляет всю оценку.\n\nМетрика `ohne_operator` привязана к целевому показателю инициативы И-1 Модуля 12: доля обращений, закрытых без оператора, ≥ 45 %.",
+        "height": 540,
+        "width": 548,
+        "color": 7
+      },
+      "id": "a8e20ae4-80ff-4d7d-843e-416b50112377",
+      "name": "Заметка 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1408,
+        -336
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 6 · Журнал качества и алерт\nСтрока журнала — начало аудит-трейла (урок 254). Текст обращения записывается **с заменой имени пациента на «[Имя]»**.\n\nСтолбец `massnahme` заполняется руководителем вручную: что сделано, когда оценка упала.\n\nПороги на шкале 0–11: **≥ 9 норма · 7–8 предупреждение · ≤ 6 критично**. Уведомление руководителю уходит при оценке ниже 7 либо при нарушении защиты данных — независимо от общего балла.\n\n**Журнал качества** — отдельная таблица Google Sheets, лист `Qualitaetsjournal`, 25 столбцов. Сопоставление по именам столбцов.",
+        "height": 500,
+        "width": 420,
+        "color": 7
+      },
+      "id": "89195dbb-635d-48b2-81c9-4857c894b8f7",
+      "name": "Заметка 6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2016,
+        -368
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 7 · Резервная ветка\n\nПри сбое основной цепочки Error Trigger запускает агента-универсала: пациент получает вежливое подтверждение приёма обращения, оператор — уведомление о сбое.\n\nРезервная модель у агента-универсала — другого провайдера, чтобы сбой основного не затронул резерв.",
+        "height": 220,
+        "width": 804,
+        "color": 7
+      },
+      "id": "bb0f04e0-7e7c-4f8b-9851-f46678e171b8",
+      "name": "Заметка 7",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1456,
+        1184
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "nb1",
+              "leftValue": "={{ $('Финальный ответ').item.json.nachbesserung }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "c9cf3811-958c-4ab5-b960-49cf7ed0487d",
+      "name": "Уже дорабатывали?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2672,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Нормализация обращения').item.json.hitl_chat_id }}",
+        "message": "=✏️ Доработка ответа · обращение {{ $('Строка журнала качества').item.json.anfrage_id }}\n\nОценка судьи: {{ $('Строка журнала качества').item.json.gesamt }} из 11 ({{ $('Строка журнала качества').item.json.ampel }})\n\nЧто отправлено пациенту сейчас:\n{{ String($('Строка журнала качества').item.json.antwort_final).replace(/([_*\\[\\]`])/g,'\\\\$1') }}\n\nЗамечание судьи:\n{{ String($('Строка журнала качества').item.json.begruendung).replace(/([_*\\[\\]`])/g,'\\\\$1') }}\n\nЧто исправить:\n{{ String($('Строка журнала качества').item.json.empfehlung).replace(/([_*\\[\\]`])/g,'\\\\$1') }}\n\n📋 Черновик агента (можно скопировать и поправить):\n{{ String($('Финальный ответ').item.json.entwurf_text).replace(/([_*\\[\\]`])/g,'\\\\$1') }}\n\nВпишите исправленный ответ — он пройдёт повторную оценку.\n\n⚙️ Сформировано ИИ-агентом «Здоровье Плюс». Итоговое решение — за сотрудником.",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Исправленный ответ",
+              "fieldType": "textarea",
+              "placeholder": "Полный текст ответа пациенту с учётом замечания судьи.",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "messageButtonLabel": "Открыть форму доработки",
+          "responseFormTitle": "Доработка ответа",
+          "responseFormDescription": "Ответ будет отправлен пациенту и повторно оценён. Второй круг доработки не предусмотрен.",
+          "responseFormButtonLabel": "Отправить доработанный ответ",
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 45,
+              "resumeUnit": "minutes"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "id": "1ecad264-c046-4ac6-972e-b0bfac6551ec",
+      "name": "Оператор: доработка ответа (Telegram)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2880,
+        32
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "final_text",
+              "type": "string",
+              "value": "={{ $json.data['Исправленный ответ'] }}"
+            },
+            {
+              "id": "n2",
+              "name": "aktion_operator",
+              "type": "string",
+              "value": "Доработано после оценки"
+            },
+            {
+              "id": "n3",
+              "name": "mensch_beteiligt",
+              "type": "boolean",
+              "value": "=true"
+            },
+            {
+              "id": "n4",
+              "name": "agent_name",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_name }}"
+            },
+            {
+              "id": "n5",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.entwurf_text }}"
+            },
+            {
+              "id": "n6",
+              "name": "agent_details",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_details }}"
+            },
+            {
+              "id": "n7",
+              "name": "nachbesserung",
+              "type": "boolean",
+              "value": "=true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2de75ff6-6c84-4fe9-9368-93bbbd7e0510",
+      "name": "Итог: доработано после оценки",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3088,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Нормализация обращения').item.json.hitl_chat_id }}",
+        "text": "=🟥 Доработка не помогла · обращение {{ $('Строка журнала качества').item.json.anfrage_id }}\n\nПовторная оценка: {{ $('Строка журнала качества').item.json.gesamt }} из 11 ({{ $('Строка журнала качества').item.json.ampel }})\n\nВторой круг доработки не предусмотрен. Обращение выведено из автоматической обработки — свяжитесь с пациентом напрямую и заполните столбец «massnahme» в журнале качества.\n\n⚙️ Сформировано ИИ-агентом «Здоровье Плюс». Итоговое решение — за сотрудником.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "3cd7e6e9-2395-4f82-a9bd-fe23c02920fa",
+      "name": "Доработка не помогла — сотруднику",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2880,
+        288
+      ],
+      "credentials": {},
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ok1",
+              "leftValue": "={{ $('Финальный ответ').item.json.mensch_beteiligt }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "727be950-a7d4-465c-93a8-b798357c9ab9",
+      "name": "Участвовал ли оператор?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2672,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Нормализация обращения').item.json.hitl_chat_id }}",
+        "text": "=✅ Ответ отправлен пациенту · обращение {{ $('Строка журнала качества').item.json.anfrage_id }}\n\nВаше действие: {{ $('Строка журнала качества').item.json.aktion_operator }}\n\nОценка судьи: {{ $('Строка журнала качества').item.json.gesamt }} из 11 ({{ $('Строка журнала качества').item.json.ampel }})\n\nЧто ушло пациенту:\n{{ String($('Строка журнала качества').item.json.antwort_final).replace(/([_*\\[\\]`])/g,'\\\\$1') }}\n\nОбращение закрыто. Если оно требует продолжения — заполните столбец «massnahme» в журнале качества.\n\n⚙️ Сформировано ИИ-агентом «Здоровье Плюс». Итоговое решение — за сотрудником.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "54aee418-ee40-40c6-8258-18c2ed4ab5bf",
+      "name": "Решение оператора принято",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2880,
+        416
+      ],
+      "credentials": {},
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "final_text",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.entwurf_text }}"
+            },
+            {
+              "id": "f2",
+              "name": "aktion_operator",
+              "type": "string",
+              "value": "Срок ожидания истёк — отправлен черновик"
+            },
+            {
+              "id": "f3",
+              "name": "mensch_beteiligt",
+              "type": "boolean",
+              "value": "=true"
+            },
+            {
+              "id": "f4",
+              "name": "agent_name",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_name }}"
+            },
+            {
+              "id": "f5",
+              "name": "entwurf_text",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.entwurf_text }}"
+            },
+            {
+              "id": "f6",
+              "name": "agent_details",
+              "type": "string",
+              "value": "={{ $('Нужен ли человек?').item.json.agent_details }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c564702c-7359-432b-91e3-10f20e9eca9d",
+      "name": "Итог: срок ожидания истёк",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1168,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 8 · Петля доработки и подтверждение оператору\nОценка ниже 7 — не повод отправить плохой ответ. Срабатывает петля Critic → Worker → Critic (урок 241): алерт руководителю → «Уже дорабатывали?» → форма доработки оператору с замечанием судьи и черновиком агента → «Итог: доработано после оценки» → повторная оценка.\n\n**Круг ровно один.** Признак `nachbesserung` переносится через «Финальный ответ», второй раз ветка не срабатывает — иначе цикл стал бы бесконечным. Если и после доработки оценка ниже порога, обращение выводится из автоматической обработки узлом «Доработка не помогла — сотруднику».\n\n**Образцовый ответ в форме доработки пишет агент, а не судья.** Судья, который пишет ответ и сам же его оценивает, — конфликт ролей, запрещённый уроками 253–255. Три роли не смешиваются: агент пишет, судья оценивает, оператор решает.\n\nУзел «Решение оператора принято» закрывает контур: после любого решения человека оператор получает итоговую оценку и текст, ушедший пациенту.",
+        "height": 480,
+        "width": 620,
+        "color": 7
+      },
+      "id": "88303284-b97e-4ac3-b974-444b418cc10f",
+      "name": "Заметка 8",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2672,
+        -528
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Форма: обращение пациента": {
+      "main": [
+        [
+          {
+            "node": "Нормализация обращения",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Нормализация обращения": {
+      "main": [
+        [
+          {
+            "node": "Обезличивание обращения",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Обезличивание обращения": {
+      "main": [
+        [
+          {
+            "node": "Guard: ПДн вычищены?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guard: ПДн вычищены?": {
+      "main": [
+        [
+          {
+            "node": "Router Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Обезличивание не сработало — стоп",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Модель: Router": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Router Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Схема: маршрутизация",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Схема: маршрутизация": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Router Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch: категория обращения",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: категория обращения": {
+      "main": [
+        [
+          {
+            "node": "Агент «Запись»",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Агент «Прайс»",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Агент «Результаты»",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Агент «Жалоба»",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Кандидат: категория не определена",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Модель: Запись": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Агент «Запись»",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Схема: запись",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Схема: запись": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Агент «Запись»",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Модель: Прайс": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Агент «Прайс»",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Схема: прайс",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Схема: прайс": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Агент «Прайс»",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Модель: Результаты": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Агент «Результаты»",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Схема: результаты",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Схема: результаты": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Агент «Результаты»",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Модель: Жалоба": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Агент «Жалоба»",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Схема: жалоба",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Схема: жалоба": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Агент «Жалоба»",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Агент «Запись»": {
+      "main": [
+        [
+          {
+            "node": "Кандидат: запись",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Агент «Прайс»": {
+      "main": [
+        [
+          {
+            "node": "Кандидат: прайс",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Агент «Результаты»": {
+      "main": [
+        [
+          {
+            "node": "Кандидат: результаты",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Агент «Жалоба»": {
+      "main": [
+        [
+          {
+            "node": "Кандидат: жалоба (черновик)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Кандидат: запись": {
+      "main": [
+        [
+          {
+            "node": "Нужен ли человек?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Кандидат: прайс": {
+      "main": [
+        [
+          {
+            "node": "Нужен ли человек?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Кандидат: результаты": {
+      "main": [
+        [
+          {
+            "node": "Нужен ли человек?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Кандидат: жалоба (черновик)": {
+      "main": [
+        [
+          {
+            "node": "Нужен ли человек?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Кандидат: категория не определена": {
+      "main": [
+        [
+          {
+            "node": "Нужен ли человек?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Нужен ли человек?": {
+      "main": [
+        [
+          {
+            "node": "Оператор: решение (Telegram)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Итог: автоматический ответ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Оператор: решение (Telegram)": {
+      "main": [
+        [
+          {
+            "node": "Switch: действие оператора",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: действие оператора": {
+      "main": [
+        [
+          {
+            "node": "Итог: подтверждено оператором",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Итог: изменено оператором",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Итог: заменено оператором",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Итог: срок ожидания истёк",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Итог: автоматический ответ": {
+      "main": [
+        [
+          {
+            "node": "Финальный ответ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Итог: подтверждено оператором": {
+      "main": [
+        [
+          {
+            "node": "Финальный ответ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Итог: изменено оператором": {
+      "main": [
+        [
+          {
+            "node": "Финальный ответ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Итог: заменено оператором": {
+      "main": [
+        [
+          {
+            "node": "Финальный ответ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Финальный ответ": {
+      "main": [
+        [
+          {
+            "node": "Evaluation Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Модель: судья (другая)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Evaluation Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Схема: оценка качества",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Схема: оценка качества": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Evaluation Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluation Agent": {
+      "main": [
+        [
+          {
+            "node": "Строка журнала качества",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Строка журнала качества": {
+      "main": [
+        [
+          {
+            "node": "Журнал качества (Google Sheets)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Журнал качества (Google Sheets)": {
+      "main": [
+        [
+          {
+            "node": "Оценка ниже порога?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Оценка ниже порога?": {
+      "main": [
+        [
+          {
+            "node": "Алерт руководителю",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Участвовал ли оператор?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Агент-универсал (резерв)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Модель: резерв": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Агент-универсал (резерв)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Агент-универсал (резерв)": {
+      "main": [
+        [
+          {
+            "node": "Уведомление о сбое",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Алерт руководителю": {
+      "main": [
+        [
+          {
+            "node": "Уже дорабатывали?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Уже дорабатывали?": {
+      "main": [
+        [
+          {
+            "node": "Оператор: доработка ответа (Telegram)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Доработка не помогла — сотруднику",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Оператор: доработка ответа (Telegram)": {
+      "main": [
+        [
+          {
+            "node": "Итог: доработано после оценки",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Итог: доработано после оценки": {
+      "main": [
+        [
+          {
+            "node": "Финальный ответ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Доработка не помогла — сотруднику": {
+      "main": [
+        [
+          {
+            "node": "Ответ пациенту",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Участвовал ли оператор?": {
+      "main": [
+        [
+          {
+            "node": "Решение оператора принято",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ответ пациенту",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Решение оператора принято": {
+      "main": [
+        [
+          {
+            "node": "Ответ пациенту",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Итог: срок ожидания истёк": {
+      "main": [
+        [
+          {
+            "node": "Финальный ответ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "meta": {},
+  "nodeGroups": [],
+  "staticData": null
+}
